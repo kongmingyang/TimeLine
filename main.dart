@@ -628,7 +628,7 @@ class _MonitorTimelineState extends State<MonitorTimeline>
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    _formatHms(currentSec),
+                    _formatHms(_currentCenterTime().inSeconds),
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -787,11 +787,14 @@ class _MonitorTimelineState extends State<MonitorTimeline>
   /// 对外方法实际实现
   /// ============================================================
 
-  /// 当前中线对应的时间
-  Duration _currentCenterTime() {
-    final sec = _scrollOffset.clamp(0.0, _secondsPerDay).round();
-    return Duration(seconds: sec);
-  }
+ /// 当前中线对应的时间（正确写法）
+Duration _currentCenterTime() {
+  if (_pixelsPerSecond <= 0 || _viewWidth <= 0) return Duration.zero;
+  final centerX = _viewWidth / 2;
+  double sec = (centerX + _scrollOffset - _sideInset) / _pixelsPerSecond;
+  sec = sec.clamp(0.0, 86400.0);
+  return Duration(seconds: sec.toInt());
+}
 
   /// 当前裁剪框对应的时间范围
   TimeRange _currentClipRange() {
